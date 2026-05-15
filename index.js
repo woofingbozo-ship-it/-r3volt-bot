@@ -26,6 +26,10 @@ const client = new Client({
   partials: [Partials.Channel],
 });
 
+// Empêche le bot de crash sur les erreurs Discord non gérées
+client.on('error', (err) => console.error('Discord error:', err.message));
+process.on('unhandledRejection', (err) => console.error('Unhandled rejection:', err?.message || err));
+
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const CONFIG = {
   AUTO_ROLE_ID:          '1504518488839032933',
@@ -52,6 +56,9 @@ const CONFIG = {
 
   // Salon produit DayZ
   DAYZ_PRODUCT_CHANNEL_ID: '1504658380244127775',
+
+  // Salon produit Valorant — remplace par le vrai ID de ton salon
+  VALORANT_PRODUCT_CHANNEL_ID: 'VALORANT_CHANNEL_ID_ICI',
 };
 // ───────────────────────────────────────────────────────────────────────────
 
@@ -221,6 +228,7 @@ client.once('ready', async () => {
   await postStatusPanel();
   await postRules();
   await postDayZProduct();
+  await postValorantProduct();
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -282,6 +290,60 @@ async function postDayZProduct() {
   console.log('✅ DayZ product panel posted');
   } catch (e) {
     console.error('❌ postDayZProduct crashed:', e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  VALORANT PRODUCT PANEL
+// ═══════════════════════════════════════════════════════════════════════════
+async function postValorantProduct() {
+  try {
+    console.log('⏳ Posting Valorant product panel...');
+    const channel = await client.channels.fetch(CONFIG.VALORANT_PRODUCT_CHANNEL_ID).catch((e) => {
+      console.error('❌ Valorant channel fetch error:', e.message);
+      return null;
+    });
+    if (!channel) return console.warn('⚠️  Valorant product channel not found (ID: ' + CONFIG.VALORANT_PRODUCT_CHANNEL_ID + ')');
+    console.log('✅ Valorant channel found:', channel.name);
+
+    const msgs = await channel.messages.fetch({ limit: 20 }).catch(() => new Map());
+    for (const m of msgs.filter(m => m.author.id === client.user.id).values()) await m.delete().catch(() => {});
+
+    const embed = new EmbedBuilder()
+      .setTitle('Valorant')
+      .setDescription([
+        '-# IA VALORANT — Intelligence Artificielle',
+        '',
+        '**Aim Assistance**',
+        '',
+        '• Aim Assist IA — prédiction de trajectoire',
+        '• Triggerbot — détection automatique de cible',
+        '• Recoil Control — compensation du recul',
+        '',
+        '**Visuals / ESP**',
+        '',
+        '• Player ESP — boîtes, squelette, santé, distance',
+        '• Wallhack — visibilité à travers les obstacles',
+        '• Radar 2D — position de tous les joueurs',
+        '• Sound ESP — visualisation des sons de pas',
+        '',
+        '**Utilities**',
+        '',
+        '• Spike Tracker — localisation en temps réel',
+        '• Compatible tous agents & toutes maps',
+        '',
+        '**Price**',
+        '',
+        '• Lifetime — 15€',
+      ].join('\n'))
+      .setColor(0xff4655)
+      .setFooter({ text: 'R3VOLT • Valorant IA' })
+      .setTimestamp();
+
+    await channel.send({ embeds: [embed] }).catch((e) => console.error('❌ Valorant send error:', e.message));
+    console.log('✅ Valorant product panel posted');
+  } catch (e) {
+    console.error('❌ postValorantProduct crashed:', e.message);
   }
 }
 
