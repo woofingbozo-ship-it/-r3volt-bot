@@ -49,6 +49,9 @@ const CONFIG = {
 
   // Salon où la commande /key est autorisée
   KEY_CHANNEL_ID:        '1504550882375897268',
+
+  // Salon produit DayZ
+  DAYZ_PRODUCT_CHANNEL_ID: '1504658380244127775',
 };
 // ───────────────────────────────────────────────────────────────────────────
 
@@ -217,7 +220,68 @@ client.once('ready', async () => {
   await postTicketPanel();
   await postStatusPanel();
   await postRules();
+  await postDayZProduct();
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DAYZ PRODUCT PANEL
+// ═══════════════════════════════════════════════════════════════════════════
+async function postDayZProduct() {
+  try {
+  console.log('⏳ Posting DayZ product panel...');
+  const channel = await client.channels.fetch(CONFIG.DAYZ_PRODUCT_CHANNEL_ID).catch((e) => {
+    console.error('❌ DayZ channel fetch error:', e.message);
+    return null;
+  });
+  if (!channel) return console.warn('⚠️  DayZ product channel not found (ID: ' + CONFIG.DAYZ_PRODUCT_CHANNEL_ID + ')');
+  console.log('✅ DayZ channel found:', channel.name);
+
+  const msgs = await channel.messages.fetch({ limit: 20 }).catch((e) => {
+    console.error('❌ DayZ fetch messages error:', e.message);
+    return new Map();
+  });
+  for (const m of msgs.filter(m => m.author.id === client.user.id).values()) await m.delete().catch(() => {});
+
+  const embed = new EmbedBuilder()
+    .setTitle('DayZ')
+    .setDescription([
+      '-# Radar DMA',
+      '',
+      '**Visual ESP**',
+      '',
+      '__Players:__',
+      '• Box (Colors)',
+      '• Name (Colors)',
+      '• Distance (Colors)',
+      '• Weapon (Colors)',
+      '',
+      '__Zombies:__',
+      '• Box (Colors)',
+      '• Name (Colors)',
+      '• Distance (Colors)',
+      '• Max Distance',
+      '',
+      '__Animals:__',
+      '• Box (Colors)',
+      '• Distance (Colors)',
+      '',
+      '**Loot ESP**',
+      '',
+      '• Select Categories (Weapons, Clothing, Ammo…)',
+      '• Cars , Boats',
+      '• Dead Players',
+      '• Dead Animals',
+    ].join('\n'))
+    .setColor(0xe74c3c)
+    .setFooter({ text: 'R3VOLT • DayZ DMA' })
+    .setTimestamp();
+
+  await channel.send({ embeds: [embed] }).catch((e) => console.error('❌ DayZ send error:', e.message));
+  console.log('✅ DayZ product panel posted');
+  } catch (e) {
+    console.error('❌ postDayZProduct crashed:', e.message);
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  TICKET PANEL — un seul select menu: produits Purchase + Support
