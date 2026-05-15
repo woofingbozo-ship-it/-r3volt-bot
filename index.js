@@ -270,7 +270,7 @@ async function postDayZProduct() {
       '• Dead Players',
       '• Dead Animals',
       '',
-      '**Prix**',
+      '**Price**',
       '',
       '• Lifetime — 10€',
     ].join('\n'))
