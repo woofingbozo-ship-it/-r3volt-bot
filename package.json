@@ -1,0 +1,15 @@
+{
+  "name": "r3volt-v2",
+  "version": "1.0.0",
+  "description": "R3VOLT Discord Bot + Key API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "api": "node api.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.26.4",
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2"
+  }
+}
